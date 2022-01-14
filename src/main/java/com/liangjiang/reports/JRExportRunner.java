@@ -13,7 +13,7 @@ public class JRExportRunner {
     public static void main(String[] args) throws JRException, IOException {
         var receipt = generateLJReceiptHeader();
         var dataSource = new JRReceiptDataSource(receipt);
-        var exporter = new JasperReportExporter();
+        var exporter = new JasperReportImageExporter();
         exporter.loadJasperReportWithDataSource(
                 "LJReceiptTemplate.jrxml",
                 dataSource.getParameters(),

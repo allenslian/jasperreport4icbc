@@ -13,23 +13,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
-public class JasperReportExporter {
+public class JasperReportImageExporter {
 
     private JasperPrint jasperPrint;
 
     public void loadJasperReportWithDataSource(String reportFilePath,
-            Map<String, Object> parameters,
-            JRDataSource dataSource) throws JRException {
+            Map<String, Object> parameters, JRDataSource dataSource) throws JRException {
 
-        InputStream reportStream = this.getClass()
-                .getClassLoader()
+        InputStream reportStream = this.getClass().getClassLoader()
                 .getResourceAsStream(reportFilePath);
 
         JasperReport report = JasperCompileManager.compileReport(
                 JRXmlLoader.load(reportStream));
 
-        this.jasperPrint = JasperFillManager.fillReport(
-                report, parameters, dataSource);
+        this.jasperPrint = JasperFillManager.fillReport(report, parameters, dataSource);
     }
 
     public void exportToImages(float zoom, ImageFileWriter writer) throws JRException, IOException {
