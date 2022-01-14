@@ -19,21 +19,22 @@ public class JRExportRunner {
                 dataSource.getParameters(),
                 dataSource.getDataSource()
         );
-        var image = exporter.exportToImage(0, 1);
-        ImageIO.write(image, "JPEG", new File("./report1.jpg"));
+        exporter.exportToImages(1, (i, image) -> ImageIO.write(image,
+                "JPEG",
+                new File(String.format("./ljreport%d.jpg", i+1))));
     }
 
     private static LJReceiptHeader generateLJReceiptHeader() {
         LJReceiptHeader receipt = new LJReceiptHeader();
         receipt.title = "辽宁沃锐达人力有限公司代发回执清单";
-        receipt.number = String.format("%05d", (int)Math.random() * 10000);
+        receipt.number = String.format("%05d", (int)(Math.random() * 10000));
         receipt.date = new Date();
         receipt.agent = "辽宁沃锐达人力有限公司";
         receipt.customer = "工商银行建昌支行";
         receipt.digest = "代发其他";
         receipt.remarks = "打款企业信息";
 
-        for (var i = 0; i < 30; i++) {
+        for (var i = 0; i < 100; i++) {
             receipt.getItems().add(receipt.new LJReceiptItem(
                     i + 1,
                     String.format("用户%d", i+1),
@@ -45,7 +46,7 @@ public class JRExportRunner {
         }
 
         receipt.actualAmount = receipt.amount = receipt.getItems().stream()
-                .map(m -> m.getAmount())
+                .map(LJReceiptHeader.LJReceiptItem::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         receipt.actualCount = receipt.count = receipt.getItems().size();
         receipt.failedAmount = BigDecimal.ZERO;

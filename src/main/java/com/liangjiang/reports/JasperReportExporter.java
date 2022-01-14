@@ -1,9 +1,7 @@
 package com.liangjiang.reports;
 
 import net.sf.jasperreports.engine.*;
-import net.sf.jasperreports.engine.design.JasperDesign;
 import net.sf.jasperreports.engine.export.JRGraphics2DExporter;
-import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.engine.xml.JRXmlLoader;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleGraphics2DExporterOutput;
@@ -11,17 +9,18 @@ import net.sf.jasperreports.export.SimpleGraphics2DReportConfiguration;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
 public class JasperReportExporter {
+
     private JasperPrint jasperPrint;
 
-    public void loadJasperReportWithDataSource(
-            String reportFilePath,
+    public void loadJasperReportWithDataSource(String reportFilePath,
             Map<String, Object> parameters,
             JRDataSource dataSource) throws JRException {
+
         InputStream reportStream = this.getClass()
                 .getClassLoader()
                 .getResourceAsStream(reportFilePath);
@@ -33,10 +32,18 @@ public class JasperReportExporter {
                 report, parameters, dataSource);
     }
 
-    public BufferedImage exportToImage(int pageIndex, float zoom) throws JRException {
+    public void exportToImages(float zoom, ImageFileWriter writer) throws JRException, IOException {
         if (jasperPrint == null) {
             throw new NullPointerException("Please load jasper report at first!!!");
         }
+
+        int pageNumber = jasperPrint.getPages().size();
+        for (int i = 0; i < pageNumber; i++) {
+            writer.WriteTo(i, exportToSingleImage(i, zoom));
+        }
+    }
+
+    private BufferedImage exportToSingleImage(int pageIndex, float zoom) throws JRException {
         BufferedImage bufferedImage = new BufferedImage(
                 (int)(jasperPrint.getPageWidth() * zoom),
                 (int)(jasperPrint.getPageHeight() * zoom),
@@ -49,6 +56,7 @@ public class JasperReportExporter {
         try
         {
             g2d = bufferedImage.createGraphics();
+
             SimpleGraphics2DExporterOutput output = new SimpleGraphics2DExporterOutput();
             output.setGraphics2D(g2d);
             exporter.setExporterOutput(output);
@@ -67,7 +75,4 @@ public class JasperReportExporter {
         }
         return bufferedImage;
     }
-
-
-
 }
