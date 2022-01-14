@@ -1,16 +1,18 @@
 package com.liangjiang.reports;
 
 import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.design.JasperDesign;
 import net.sf.jasperreports.engine.export.JRGraphics2DExporter;
 import net.sf.jasperreports.engine.util.JRLoader;
+import net.sf.jasperreports.engine.xml.JRXmlLoader;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleGraphics2DExporterOutput;
 import net.sf.jasperreports.export.SimpleGraphics2DReportConfiguration;
 
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.InputStream;
 import java.util.Map;
 
 public class JasperReportExporter {
@@ -20,14 +22,18 @@ public class JasperReportExporter {
             String reportFilePath,
             Map<String, Object> parameters,
             JRDataSource dataSource) throws JRException {
+        InputStream reportStream = this.getClass()
+                .getClassLoader()
+                .getResourceAsStream(reportFilePath);
+
+        JasperReport report = JasperCompileManager.compileReport(
+                JRXmlLoader.load(reportStream));
+
         this.jasperPrint = JasperFillManager.fillReport(
-                (JasperReport) JRLoader.loadObject(new File(reportFilePath)),
-                parameters,
-                dataSource
-        );
+                report, parameters, dataSource);
     }
 
-    public Image exportToImage(int pageIndex, float zoom) throws JRException {
+    public BufferedImage exportToImage(int pageIndex, float zoom) throws JRException {
         if (jasperPrint == null) {
             throw new NullPointerException("Please load jasper report at first!!!");
         }
